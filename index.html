@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; connect-src * fws:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval';">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>موسوعة الفضاء - EPUN ☀️</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <link rel="icon" type="image/x-icon" href="html/astronaut.png">
+   
+</head>
+<body>
+
+
+
+    <script type="module" src="main.js" charset="UTF-8"></script>
+
+    <div id="intro-overlay" style="display: none;">
+        <div class="rocket-container">
+            <img src="rocket-img.png" id="rocket-img" alt="Rocket">
+            <h2 class="launch-text">جاري الإقلاع نحو المجرة... 🌞</h2>
+        </div>
+    </div>
+
+    <div id="stars"></div>
+
+    <section id="homePage" class="page active">
+        <h1 class="glow">النظام الشمسي ☀️</h1>
+        <div class="info-panel">
+            <h2 style="color: #4fc3f7;">🚀 رحلة EPUN</h2>
+            <p id="typing"></p>
+
+        </div>
+        <div class="menu-btns">
+            <button class="nav-btn" onclick="goToPage('mainPlanetsPage')">الكواكب الرئيسية (8) 🪐</button>
+            <button class="nav-btn" onclick="goToPage('dwarfPlanetsPage')">الكواكب القزمة (5) 🌑</button>
+            <button class="nav-btn special-3d" onclick="launchTo3D()">عرض 3D تفاعلي 👓</button>
+        </div>
+    </section>
+
+    <section id="mainPlanetsPage" class="page">
+        <h1 class="glow">العمالقة الثمانية (8)</h1>
+        <div class="grid">
+            <div class="card" onclick="showPlanetInfo('عطارد')"><img src="html/عطارد.png"><p>عطارد 🌑</p></div>
+            <div class="card" onclick="showPlanetInfo('الزهرة')"><img src="html/الزهره.png"><p>الزهرة 🌡️</p></div>
+            <div class="card" onclick="showPlanetInfo('الأرض')"><img src="html/earth.png"><p>الأرض 🌍</p></div>
+            <div class="card" onclick="showPlanetInfo('المريخ')"><img src="html/المريخ.png"><p>المريخ 🔴</p></div>
+            <div class="card" onclick="showPlanetInfo('المشتري')"><img src="html/المشتري .png"><p>المشتري 🌀</p></div>
+            <div class="card" onclick="showPlanetInfo('زحل')"><img src="html/زحل.png"><p>زحل 🪐</p></div>
+            <div class="card" onclick="showPlanetInfo('أورانوس')"><img src="html/أورانوس.png"><p>أورانوس 💎</p></div>
+            <div class="card" onclick="showPlanetInfo('نبتون')"><img src="html/نبتون.png"><p>نبتون 🌊</p></div>
+        </div>
+        <button class="back-home" onclick="goToPage('homePage')">العودة للرئيسية 🔙</button>
+    </section>
+
+    <section id="dwarfPlanetsPage" class="page">
+        <h1 class="glow">الكواكب القزمة (5)</h1>
+        <div class="grid">
+            <div class="card" onclick="showPlanetInfo('سيريس')"><img src="html/سيريس.png"><p>سيريس ☄️</p></div>
+            <div class="card" onclick="showPlanetInfo('بلوتو')"><img src="html/بلوتو.png"><p>بلوتو ❄️</p></div>
+            <div class="card" onclick="showPlanetInfo('إيريس')"><img src="html/ايرس.png"><p>إيريس 🌑</p></div>
+            <div class="card" onclick="showPlanetInfo('هاوميا')"><img src="html/هايما.png"><p>هاوميا 🥚</p></div>
+            <div class="card" onclick="showPlanetInfo('ماكي ماكي')"><img src="html/ماكي.png"><p>ماكي ماكي 🪨</p></div>
+        </div>
+        <button class="back-home" onclick="goToPage('homePage')">العودة للرئيسية 🔙</button>
+    </section>
+
+    <div id="planet-info-modal" class="modal">
+        <div class="modal-content info-panel">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2 id="modal-title"></h2> 
+            <p id="modal-text"></p>
+        </div>
+    </div>
+
+    <audio id="btn-sound" src="html/e.mp3" preload="auto"></audio>
+    <audio id="launch-sound" src="html/f.mp3" preload="auto"></audio>
+    <audio id="welcome-sound" src="html/f.mp3" preload="auto"></audio>
+    
+
+    
+    
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<!-- في ملف index.html -->
+
+
+</body>
+</html>

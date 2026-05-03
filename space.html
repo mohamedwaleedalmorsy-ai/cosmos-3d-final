@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🪐 Cosmos 3D | مستكشف الكواكب</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link rel="icon" href="data:,">
+     <link rel="icon" type="image/x-icon" href="assets/space-tourism.png">
+    <style>
+        body { margin: 0; overflow: hidden; background: black; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        #canvas-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
+
+        /* تصميم اللوحة الجانبية */
+        #planet-info {
+            position: fixed;
+            top: 50%;
+            left: 5%;
+            transform: translateY(-50%);
+            display: none;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 30px;
+            border-left: 4px solid #00f3ff;
+            border-radius: 15px;
+            width: 350px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+        }
+
+        #planet-name { color: #00f3ff; margin: 0; font-size: 2rem; }
+        #planet-tagline { color: #aaa; font-style: italic; margin-bottom: 15px; display: block; }
+        #planet-desc { line-height: 1.6; font-size: 1rem; margin-bottom: 20px; }
+
+        .specs-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+        .spec-item { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; font-size: 0.9rem; }
+        .spec-item b { color: #00f3ff; }
+
+        .back-btn {
+            background: #00f3ff;
+            color: black;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: 0.3s;
+        }
+        .back-btn:hover { background: #fff; box-shadow: 0 0 15px #00f3ff; }
+
+        .pulse-dot {
+            width: 8px; height: 8px; background: #ff00ff; border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- موسيقى الفضاء الخلفية -->
+    <audio id="space-theme" loop>
+        <source src="assets/space-bg.wav" type="audio/mpeg">
+    </audio>
+
+    <div id="canvas-container"></div>
+
+    <div id="planet-info">
+        <h2 id="planet-name">اسم الكوكب</h2>
+        <div id="voice-status" style="font-size: 0.8rem; color: #00f3ff; margin-bottom: 10px; display: flex; align-items: center; gap: 5px;">
+            <span class="pulse-dot"></span> الكوكب يتحدث الآن...
+        </div>
+        <span id="planet-tagline">الشعار</span>
+        <p id="planet-desc">الوصف يظهر هنا...</p>
+        
+        <div class="specs-grid" id="planet-specs"></div>
+
+        <button onclick="closeModal()" class="back-btn">العودة للمجرة 🚀</button>
+    </div>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+    </script>
+
+    <script type="module">
+    import { initSpace, resetSpaceView } from './spaceEngine.js';
+    import { planetsDeepData } from './planetsData.js';
+
+    initSpace('canvas-container');
+
+    const synth = window.speechSynthesis;
+    const spaceMusic = document.getElementById('space-theme');
+    
+  
+ 
+window.openPlanetModal = function(name) {
+    const modal = document.getElementById('planet-info');
+    const data = planetsDeepData[name];
+
+    if (data) {
+        // 1. خفض موسيقى الفضاء تدريجياً (Fade Out) ثم إيقافها
+        if (typeof spaceMusic !== 'undefined' && spaceMusic) {
+            gsap.to(spaceMusic, { volume: 0, duration: 1, onComplete: () => spaceMusic.pause() });
+        }
+
+        document.getElementById('planet-name').innerText = data.name;
+        document.getElementById('planet-tagline').innerText = data.tagline;
+        document.getElementById('planet-desc').innerText = data.description;
+        
+        const specsGrid = document.getElementById('planet-specs');
+        specsGrid.innerHTML = ""; 
+        
+        for (const [key, value] of Object.entries(data.specs)) {
+            specsGrid.innerHTML += `<div class="spec-item"><b>${translateKey(key)}:</b> ${value}</div>`;
+        }
+
+        if(data.ai_monologue) {
+            specsGrid.innerHTML += `
+                <div class="spec-item" style="grid-column: 1/-1; border-right: 3px solid #ff00ff; background: rgba(255,0,255,0.05);">
+                    <b>🎙️ رسالة الكوكب:</b> ${data.ai_monologue}
+                </div>
+            `;
+        }
+
+        modal.style.display = "block";
+        gsap.fromTo(modal, {x: -100, opacity: 0}, {x: 0, opacity: 1, duration: 0.6, ease: "power2.out"});
+
+        // 2. استدعاء دالة تشغيل الصوت (اللي ضفناها في ملف الـ 3D)
+        // بنبعت ليها اسم الكوكب عشان تشغل ملف الـ mp3 الصح
+        if (typeof window.playPlanetAudio === 'function') {
+            window.playPlanetAudio(name); 
+        }
+    }
+};
+    window.closeModal = function() {
+        const modal = document.getElementById('planet-info');
+        
+        // 1. إيقاف نطق الـ AI فوراً
+        synth.cancel();
+
+        // 2. إعادة تشغيل موسيقى الفضاء (Fade In)
+        if (spaceMusic) {
+            spaceMusic.play();
+            gsap.to(spaceMusic, { volume: 0.5, duration: 1.5 });
+        }
+
+        if (modal) {
+            gsap.to(modal, {x: -100, opacity: 0, duration: 0.5, onComplete: () => {
+                modal.style.display = "none";
+            }});
+        }
+        resetSpaceView();
+    };
+
+    function translateKey(key) {
+        const keys = {
+            "diameter": "القطر", "gravity": "الجاذبية", "surfaceTemperature": "حرارة السطح",
+            "coreTemperature": "حرارة اللب", "distanceFromSun": "البعد عن الشمس",
+            "yearLength": "طول السنة", "temperature": "الحرارة", "dayLength": "طول اليوم",
+            "moons": "الأقمار", "type": "النوع", "distanceFromEarth": "البعد عن الأرض",
+            "atmosphere": "الغلاف الجوي", "mass": "الكتلة", "tilt": "الميل"
+        };
+        return keys[key] || key;
+    }
+    </script>
+</body>
+</html>
